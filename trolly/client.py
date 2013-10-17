@@ -12,7 +12,7 @@ from organisation import Organisation
 from board import Board
 from list import List
 from card import Card
-from checklist import Checklist
+from checklist import Checklist, ChecklistItem
 from member import Member
 
 from trolly import Unauthorised, ResourceUnavailable
@@ -153,8 +153,23 @@ class Client( object ):
         """
         return Checklist( 
                 trello_client = self,
+                card_id = checklist_json['idCard'].encode('utf-8'),
                 checklist_id = checklist_json['id'].encode('utf-8'),
                 name = checklist_json['name'].encode( 'utf-8' )
+            )
+
+
+    def createChecklistItem( self, card_id, checklist_id, checklistitem_json ):
+        """
+        Create a ChecklistItem object from JSON object
+        """
+        return ChecklistItem(
+                trello_client = self,
+                card_id = card_id,
+                checklist_id = checklist_id,
+                checklistitem_id = checklistitem_json['id'].encode('utf-8'),
+                name = checklistitem_json['name'].encode( 'utf-8' ),
+                state = checklistitem_json['state'].encode( 'utf-8' )
             )
 
 

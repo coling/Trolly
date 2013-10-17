@@ -83,5 +83,9 @@ class TrelloObject( object ):
         return self.client.createChecklist( checklist_json, **kwargs )
 
 
+    def createChecklistItem( self, card_id, checklist_id, checklistitem_json, **kwargs ):
+        return self.client.createChecklistItem( card_id, checklist_id, checklistitem_json, **kwargs )
+
+
     def createMember( self, member_json, **kwargs ):
         return self.client.createMember( member_json, **kwargs )

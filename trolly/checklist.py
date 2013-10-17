@@ -11,9 +11,10 @@ class Checklist( TrelloObject ):
     """
     Class representing a Trello Checklist
     """
-    def __init__( self, trello_client, checklist_id, name = '' ):
+    def __init__( self, trello_client, card_id, checklist_id, name = '' ):
         super( Checklist, self ).__init__( trello_client )
 
+        self.idCard = card_id
         self.id = checklist_id
         self.name = name
 
@@ -39,6 +40,17 @@ class Checklist( TrelloObject ):
                 uri_path = self.base_uri + '/checkItems',
                 query_params = query_params
             )
+
+
+    def getItemObjects( self, query_params = {} ):
+        """
+        Get the items for this checklist. Returns a list of ChecklistItem objects.
+        """
+        checklistitems_list = []
+        for checklistitem_json in self.getItems(query_params):
+            checklistitems_list.append( self.createChecklistItem( self.idCard, self.id, checklistitem_json ) )
+
+        return checklistitems_list
 
 
     def updateChecklist( self, name ):
@@ -73,3 +85,45 @@ class Checklist( TrelloObject ):
                 uri_path = self.base_uri + '/checkItems/' + item_id,
                 http_method = 'DELETE'
             )
+
+
+class ChecklistItem( TrelloObject ):
+    """
+    Class representing a Trello Checklist Item
+    """
+    def __init__( self, trello_client, card_id, checklist_id, checklistitem_id, name = '', state = 'incomplete'):
+        super( ChecklistItem, self ).__init__( trello_client )
+
+        self.idCard = card_id
+        self.idChecklist = checklist_id
+        self.id = checklistitem_id
+        self.name = name
+        self.state = (state == 'complete')
+
+        self.base_uri = '/cards/' + self.idCard + '/checklist/' + self.idChecklist + '/checkItem/' + self.id
+
+
+    def updateName( self, name ):
+        """
+        Rename the current checklist item. Returns a new ChecklistItem object.
+        """
+        checklistitem_json = self.fetchJson(
+                uri_path = self.base_uri + '/name',
+                http_method = 'PUT',
+                query_params = { 'value': name }
+            )
+
+        return self.createChecklistItem( self.idCard, self.idChecklist, checklistitem_json )
+
+
+    def updateState( self, state ):
+        """
+        Set the state of the current checklist item. Returns a new ChecklistItem object.
+        """
+        checklistitem_json = self.fetchJson(
+                uri_path = self.base_uri + '/state',
+                http_method = 'PUT',
+                query_params = { 'value': 'complete' if state else 'incomplete' }
+            )
+
+        return self.createChecklistItem( self.idCard, self.idChecklist, checklistitem_json )
